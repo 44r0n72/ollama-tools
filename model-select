@@ -1,21 +1,45 @@
 #!/bin/bash
-# Interactive Ollama LOCAL model selector
-# Automatically filters out cloud models and updates dynamically
+# Interactive Ollama model selector
+# Shows both local and cloud models
 
-echo "Available LOCAL Ollama models:"
+echo "Available Ollama models:"
 echo ""
+echo "LOCAL MODELS:"
 
-# Get only local models (those with actual SIZE, not cloud models with "-")
-mapfile -t MODELS < <(ollama list | tail -n +2 | awk '$3 != "-" {print $1}')
+# Get local models (those with actual SIZE, not cloud models with "-")
+mapfile -t LOCAL_MODELS < <(ollama list | tail -n +2 | awk '$3 != "-" {print $1}')
+
+if [ ${#LOCAL_MODELS[@]} -eq 0 ]; then
+    echo "  (none)"
+else
+    for i in "${!LOCAL_MODELS[@]}"; do
+        printf "%2d) %s\n" $((i+1)) "${LOCAL_MODELS[$i]}"
+    done
+fi
+
+echo ""
+echo "CLOUD MODELS:"
+
+# Get cloud models (those with "-" as SIZE)
+mapfile -t CLOUD_MODELS < <(ollama list | tail -n +2 | awk '$3 == "-" {print $1}')
+
+if [ ${#CLOUD_MODELS[@]} -eq 0 ]; then
+    echo "  (none)"
+else
+    local_count=${#LOCAL_MODELS[@]}
+    for i in "${!CLOUD_MODELS[@]}"; do
+        printf "%2d) %s\n" $((local_count + i + 1)) "${CLOUD_MODELS[$i]}"
+    done
+fi
+
+# Combine both arrays
+MODELS=("${LOCAL_MODELS[@]}" "${CLOUD_MODELS[@]}")
 
 if [ ${#MODELS[@]} -eq 0 ]; then
-    echo "No local models found. Run 'ollama pull <model>' to download one."
+    echo "No models found."
     exit 1
 fi
 
-for i in "${!MODELS[@]}"; do
-    printf "%2d) %s\n" $((i+1)) "${MODELS[$i]}"
-done
 
 echo ""
 read -p "Select model number (1-${#MODELS[@]}): " choice

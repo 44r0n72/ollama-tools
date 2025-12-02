@@ -1,0 +1,37 @@
+#!/bin/bash
+# Interactive Ollama LOCAL model selector
+# Automatically filters out cloud models and updates dynamically
+
+echo "Available LOCAL Ollama models:"
+echo ""
+
+# Get only local models (those with actual SIZE, not cloud models with "-")
+mapfile -t MODELS < <(ollama list | tail -n +2 | awk '$3 != "-" {print $1}')
+
+if [ ${#MODELS[@]} -eq 0 ]; then
+    echo "No local models found. Run 'ollama pull <model>' to download one."
+    exit 1
+fi
+
+for i in "${!MODELS[@]}"; do
+    printf "%2d) %s\n" $((i+1)) "${MODELS[$i]}"
+done
+
+echo ""
+read -p "Select model number (1-${#MODELS[@]}): " choice
+
+if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#MODELS[@]}" ]; then
+    MODEL="${MODELS[$((choice-1))]}"
+    echo "Selected: $MODEL"
+    echo ""
+    
+    # If argument provided, run ollama with that command
+    if [ $# -gt 0 ]; then
+        ollama run "$MODEL" "$@"
+    else
+        ollama run "$MODEL"
+    fi
+else
+    echo "Invalid selection"
+    exit 1
+fi

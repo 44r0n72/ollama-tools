@@ -4,11 +4,10 @@ A collection of shell scripts to make working with Ollama models easier.
 
 ## 🚀 Features
 
-- **model-select**: Interactive local model selector
-  - Automatically filters out cloud models
-  - Shows only locally downloaded models
+- **model-select**: Interactive selector for local and cloud models
+  - Groups cloud models by SIZE `-` and keeps local models separate
+  - Numbers choices across both groups and runs the selected model
   - Dynamically updates as you add/remove models
-  - Simple numbered selection interface
 
 ## 📦 Installation
 
@@ -36,15 +35,19 @@ Simply type:
 model
 ```
 
-You'll see a list of your local Ollama models:
+You'll see local and cloud Ollama models in separate groups, with choices numbered together:
 ```
-Available LOCAL Ollama models:
+Available Ollama models:
 
- 1) mistral:7b
- 2) deepseek-coder:latest
- 3) deepseek-r1:1.5b
+LOCAL MODELS:
+ 1) llama3.2:latest
+ 2) qwen3:8b
 
-Select model number (1-3):
+CLOUD MODELS:
+ 3) deepseek-v3.1:671b-cloud
+
+Select model number (1-3): 3
+Selected: deepseek-v3.1:671b-cloud
 ```
 
 ## 🔧 Requirements
